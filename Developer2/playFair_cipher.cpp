@@ -45,29 +45,40 @@ void findPosition(char matrix[5][5], char c, int &row, int &col) {
 }
 
 // Encrypt the plaintext using Playfair cipher
-string playfairEncrypt(string text, string key) {
+string playfairEncrypt(const string &text, const string &key) {
     char matrix[5][5];
     generateMatrix(key, matrix);
-    text = prepareText(text);
-    string cipher = "";
-    for (size_t i = 0; i < text.length(); i += 2) {
-        int r1, c1, r2, c2;
-        findPosition(matrix, text[i], r1, c1);
-        findPosition(matrix, text[i + 1], r2, c2);
-        if (r1 == r2) {
+
+    string preparedText = prepareText(text);
+    string cipher;
+    cipher.reserve(preparedText.size()); // reserve space to avoid repeated reallocations
+
+    // Create a lookup for character positions to avoid repeated searches
+    unordered_map<char, pair<int,int>> pos;
+    for (int r = 0; r < 5; ++r) {
+        for (int c = 0; c < 5; ++c) {
+            pos[matrix[r][c]] = {r, c};
+        }
+    }
+
+    for (size_t i = 0; i < preparedText.length(); i += 2) {
+        auto [r1, c1] = pos[preparedText[i]];
+        auto [r2, c2] = pos[preparedText[i + 1]];
+
+        if (r1 == r2) { // same row
             cipher += matrix[r1][(c1 + 1) % 5];
             cipher += matrix[r2][(c2 + 1) % 5];
-        } else if (c1 == c2) {
+        } else if (c1 == c2) { // same column
             cipher += matrix[(r1 + 1) % 5][c1];
             cipher += matrix[(r2 + 1) % 5][c2];
-        } else {
+        } else { // rectangle
             cipher += matrix[r1][c2];
             cipher += matrix[r2][c1];
         }
     }
+
     return cipher;
 }
-
 int main() {
     string key = "ldrp";
     string plaintext = "responsive";
