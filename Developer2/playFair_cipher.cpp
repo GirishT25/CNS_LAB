@@ -80,7 +80,7 @@ string playfairEncrypt(const string &text, const string &key) {
     return cipher;
 }
 int main() {
-    string key = "ldrp";
+    string key = "rfpson";
     string plaintext = "responsive";
     string encrypted = playfairEncrypt(plaintext, key);
     cout << "Encrypted text: " << encrypted << endl;
